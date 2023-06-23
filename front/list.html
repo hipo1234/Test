@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
+    <script src="./common.js"></script>
+
+    <title>Document</title>
+
+    <script>
+        $(document).on('click', '.article', function () {
+            location.href='./detail.html?aid=' + $(this).data('id');
+        });
+
+        $(document).ready(function () {
+            // 목록을 restful로 가져와야함
+            callService(
+                "get"
+                , "http://localhost:8080/rest"
+                , undefined
+                , function (response) {
+                    var list = response.list;
+                    console.log(list);
+                    list.forEach(element => {
+                        $('#listTable').append('<tr class="article" data-id="' + element.id + '">' +
+                            '<td>' + element.title + ' (' + element.replyCount + ')</td>' +
+                            '<td>' + element.hits + '</td>' +
+                            '<td>' + element.strRegisterDatetime + '</td>' +
+                            '<td>' + element.registerLoginId + '</td>' +
+                            '</tr>');
+                    });
+                }
+            );
+        });
+    </script>
+</head>
+<body>
+    <table id="listTable">
+        <tr>
+            <td>제목1</td>
+            <td>조회수</td>
+            <td>작성일시</td>
+            <td>작성자</td>
+        </tr>
+    </table>
+    <button onclick="location.href='./write.html'">글쓰기</button>
+</body>
+</html>
+
+
+
+
+

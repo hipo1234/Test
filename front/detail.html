@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://code.jquery.com/jquery-3.7.0.js" integrity="sha256-JlqSTELeR4TLqP0OG9dxM7yDPqX1ox/HfgiSLBj8+kM=" crossorigin="anonymous"></script>
+    <script src="./moment.js"></script>
+    <script src="./common.js"></script>
+
+    <title>Document</title>
+
+    <style>
+        .border {
+            border: 1px solid #000;
+        }
+    </style>
+
+    <script>
+        $(document).ready(function () {
+            callService(
+                "get"
+                , "http://localhost:8080/rest/" + getValueOfParameter('aid')
+                , undefined
+                , function (response) {
+                    $('#title').text(response.title);
+                    $('#contents').text(response.contents);
+                    $('input[name=aid]').val(getValueOfParameter('aid'));
+
+                    if (response.replyList.length > 0) {
+                        response.replyList.forEach(element => {
+                            $('#replyArea').append('<div style="border: 1px solid red">\n' +
+                '                    <div>\n' +
+                '                        작성자 : ' + element.registerLoginId + '\n' +
+                '                    </div>\n' +
+                '                    <div>\n' +
+                '                        작성일시 : ' + parseDate(element.registerDatetime) + '\n' +
+                '                    </div>\n' +
+                '                    <div>\n' +
+                '                        내용\n' +
+                '                        <div>\n' +
+                '                            ' + element.contents + '\n' +
+                '                        </div>\n' +
+                '                    </div>\n' +
+                '                </div>')
+                        });
+                    } else {
+                        $('#replyArea').text('댓글이 없습니다.');
+                    }
+                }
+            );
+        });
+
+        function registerReply() {
+            var contents = $('input[name=contents]');
+            var loginId = $('input[name=loginId]');
+
+            if (contents.val() == '') {
+                alert("댓글 내용을 입력해 주세요.");
+                contents.focus();
+                return;
+            }
+
+            if (loginId.val() == '') {
+                alert("아이디를 입력해 주세요.");
+                loginId.focus();
+                return;
+            }
+
+            if (contents.val().length > 100) {
+                alert("댓글은 100자 이내로 입력해 주세요.");
+                contents.focus();
+                return;
+            }
+
+            callService(
+                "post"
+                , "http://localhost:8080/rest/reply"
+                , {
+                    "aid" : $('input[name=aid]').val()
+                    , "contents" : $('input[name=contents]').val()
+                    , "loginId" : $('input[name=loginId]').val()
+                }
+                , function (response) {
+                    alert(response.message);
+                    location.reload();
+                }
+            );
+        }
+    </script>
+</head>
+<body>
+    <div>
+        제목
+        <div id="title" class="border">
+
+        </div>
+    </div>
+    <div>
+        내용
+        <div id="contents" class="border">
+
+        </div>
+    </div>
+
+    <div id="replyArea">
+
+    </div>
+
+    <form id="replyForm">
+        <div>
+            <input type="text" name="contents">
+            <input type="text"
+             name="loginId" placeholder="아이디입력">
+        </div>
+        <input type="hidden" name="aid" value="">
+    </form>
+    <button onclick="registerReply()">댓글작성</button>
+
+    <button onclick="location.href='./list.html'">목록</button>
+</body>
+</html>
